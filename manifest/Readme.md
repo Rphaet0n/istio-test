@@ -1,0 +1,1 @@
+# Yaml файлы в папке manifest

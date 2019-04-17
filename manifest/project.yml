@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Service
+metadata:
+   name: project
+   labels:
+     run: project
+spec:
+   ports:
+   - port: 80
+     targetPort: 8888
+     protocol: TCP
+   type: NodePort # временная затычка, до тех пор,
+   # пока удастся прокинуть ingress-gateway на localhost
+   selector:
+     run: project
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+   name: project
+spec:
+   replicas: 1
+   template:
+     metadata:
+       labels:
+         run: project
+     spec:
+       containers:
+       - name: project
+         image: project:v1
+         ports:
+         - containerPort: 8888
