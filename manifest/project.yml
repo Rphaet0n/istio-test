@@ -9,8 +9,6 @@ spec:
    - port: 80
      targetPort: 8888
      protocol: TCP
-   type: NodePort # временная затычка, до тех пор,
-   # пока удастся прокинуть ingress-gateway на localhost
    selector:
      run: project
 
