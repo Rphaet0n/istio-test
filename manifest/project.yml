@@ -30,7 +30,14 @@ spec:
          image: project:v1
          ports:
          - containerPort: 8888
+         volumeMounts:
+         - name: project-volume
+           mountPath: /images
        initContainers: #необходимо дождаться запуска БД.
          - name: init-mongo
            image: busybox
            command: ['sh', '-c', 'until nslookup mongo; do echo waiting for mongo; sleep 2; done;']
+       volumes: #для хранения фоток
+         - name: project-volume
+           persistentVolumeClaim:
+            claimName: project-pvc
