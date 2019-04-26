@@ -14,8 +14,25 @@ spec:
     route:
     - destination:
         host: project
+        subset: v2
         port:
           number: 80
+      weight: 30
+    - destination:
+        host: project
+        subset: v1
+        port:
+          number: 80
+      weight: 70
+        
+
+
+    # mirror:             ## A/B testing(Mirroring)
+    #   host: project     
+    #   subset: v1
+    #   port:
+    #     number: 80
+                          # End A/B testing
 
 ---
 
@@ -33,3 +50,21 @@ spec:
       protocol: HTTP
     hosts:
     - "*"
+
+---
+
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: project
+# spec:
+#   hosts:
+#     - project          
+#   http:
+#   - route:
+#     - destination:
+#        host: project  
+#        subset: v2
+#     # mirror:             
+#     #   host: project     
+#     #   subset: v1

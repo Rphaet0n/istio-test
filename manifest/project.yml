@@ -20,9 +20,12 @@ metadata:
    name: project
 spec:
    replicas: 1
+   minReadySeconds: 15
    template:
      metadata:
        labels:
+         app: project
+         version: v1
          run: project
      spec:
        containers:
@@ -33,6 +36,58 @@ spec:
          volumeMounts:
          - name: project-volume
            mountPath: /images
+         resources:
+           requests:
+             memory: "512Mi"
+             cpu: "750m"
+           limits:
+             memory: "2048Mi"
+             cpu: "1000m"
+       initContainers: #необходимо дождаться запуска БД.
+         - name: init-mongo
+           image: busybox
+           command: ['sh', '-c', 'until nslookup mongo; do echo waiting for mongo; sleep 2; done;']
+       volumes: #для хранения фоток
+         - name: project-volume
+           persistentVolumeClaim:
+            claimName: project-pvc
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+   name: project-orange
+spec:
+   replicas: 1
+   minReadySeconds: 15
+   strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 1 
+   template:
+     metadata:
+       labels:
+         app: project
+         version: v2
+         run: project
+     spec:
+       containers:
+       - name: project
+         image: project:v2
+         ports:
+         - containerPort: 8888
+         volumeMounts:
+         - name: project-volume
+           mountPath: /images
+         resources:
+           requests:
+             memory: "512Mi"
+             cpu: "750m"
+           limits:
+             memory: "2048Mi"
+             cpu: "1000m"
        initContainers: #необходимо дождаться запуска БД.
          - name: init-mongo
            image: busybox
