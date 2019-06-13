@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-statistics
+  labels:
+    app: news-statistics
+spec:
+  selector:
+     matchLabels:
+       app: news-statistics
+       version: v1
+  template:
+    metadata:
+      labels:
+        app: news-statistics
+        version: v1
+    spec:
+      containers:
+      - image: news-statistics:v1
+        name: news-statistics
+        ports:
+          - containerPort: 3011
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-statistics
+  labels:
+    app: news-statistics
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3011
+  selector:
+    app: news-statistics

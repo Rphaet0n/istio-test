@@ -3,34 +3,27 @@ kind: Service
 metadata:
    name: mongo
    labels:
-     app: mongo
+     run: mongo
 spec:
    ports:
    - port: 27017
      targetPort: 27017
-     name: mongo
+     protocol: TCP
    selector:
-     app: mongo
+     run: mongo
 
 ---
 
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
    name: mongo
-   labels:
-      app: mongo
 spec:
    replicas: 1
-   selector:
-     matchLabels:
-       app: mongo
-       version: v1
    template:
      metadata:
        labels:
-         app: mongo
-         version: v1
+         run: mongo
      spec:
        containers:
        - name: mongo

@@ -1,42 +1,4 @@
 apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService
-metadata:
-  name: project-external-services
-spec:
-  hosts:
-  - "*"
-  gateways:
-  - http-gateway
-  http:
-  - match:
-    - uri:
-        prefix: /
-    route:
-    - destination:
-        host: project
-        subset: v2
-        port:
-          number: 80
-      weight: 30
-    - destination:
-        host: project
-        subset: v1
-        port:
-          number: 80
-      weight: 70
-        
-
-
-    # mirror:             ## A/B testing(Mirroring)
-    #   host: project     
-    #   subset: v1
-    #   port:
-    #     number: 80
-                          # End A/B testing
-
----
-
-apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
   name: http-gateway
@@ -53,18 +15,78 @@ spec:
 
 ---
 
-# apiVersion: networking.istio.io/v1alpha3
-# kind: VirtualService
-# metadata:
-#   name: project
-# spec:
-#   hosts:
-#     - project          
-#   http:
-#   - route:
-#     - destination:
-#        host: project  
-#        subset: v2
-#     # mirror:             
-#     #   host: project     
-#     #   subset: v1
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: news-virtual-services
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - http-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /news_api
+    - uri:
+        prefix: /socket.io
+    route:
+    # - destination:            #weight based routing
+    #     host: news-backend
+    #     subset: v1
+    #     port:
+    #       number: 80
+    #   weight: 30
+    - destination:
+        host: news-backend
+        subset: v2
+        port:
+          number: 80
+      weight: 100
+    # mirror:                   # Mirroring
+    #   host: news-backend     
+    #   subset: v4
+    #   port:
+    #     number: 80
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: news-frontend
+        port:
+          number: 80
+
+
+  # - match:
+  #   - uri:
+  #       prefix: /kiali
+  #   route:
+  #   - destination:
+  #       host: kiali.istio-system
+  #       port:
+  #         number: 20001
+  # - match:
+  #   - uri:
+  #       prefix: /grafana
+  #   route:
+  #   - destination:
+  #       host: grafana.istio-system
+  #       port:
+  #         number: 3000
+  # - match:
+  #   - uri:
+  #       prefix: /jaeger
+  #   route:
+  #   - destination:
+  #       host: jaeger.istio-system
+  #       port:
+  #         number: 16686
+  # - match:
+  #   - uri:
+  #       prefix: /zipkin
+  #   route:
+  #   - destination:
+  #       host: zipkin.istio-system
+  #       port:
+  #         number: 15032

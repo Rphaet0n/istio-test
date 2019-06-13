@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-frontend
+  labels:
+    app: news-frontend
+spec:
+  replicas: 1
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+     matchLabels:
+       app: news-frontend
+       version: v1
+  template:
+    metadata:
+      labels:
+        app: news-frontend
+        version: v1
+    spec:
+      containers:
+      - image: news-frontend:v1
+        name: news-frontend
+        ports:
+          - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-frontend
+  labels:
+    app: news-frontend
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: news-frontend

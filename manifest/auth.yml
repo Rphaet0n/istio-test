@@ -2,11 +2,52 @@ apiVersion: authentication.istio.io/v1alpha1
 kind: Policy
 metadata:
   name: auth-policy
+  namespace: default
 spec:
   targets:
-  - name: project
+  - name: news-statistics
+  peers:
+  - mtls: {}
   origins:
   - jwt:
-      issuer: "https://ard.au.auth0.com/"
-      jwksUri: "https://ard.au.auth0.com/.well-known/jwks.json"
-  principalBinding: USE_ORIGIN
+      issuer: "https://dev-5n3ip3qf.eu.auth0.com/"
+      jwksUri: "https://dev-5n3ip3qf.eu.auth0.com/.well-known/jwks.json"
+    principalBinding: USE_ORIGIN
+
+---
+
+apiVersion: "rbac.istio.io/v1alpha1"
+kind: ClusterRbacConfig
+metadata:
+  name: default
+spec:
+  mode: 'ON_WITH_INCLUSION'
+  inclusion:
+    services:
+    - "news-statistics.default.svc.cluster.local"
+
+---
+apiVersion: "rbac.istio.io/v1alpha1"
+kind: ServiceRole
+metadata:
+  name: sfedu-admin
+  namespace: default
+spec:
+  rules:
+  - services: 
+    - "news-statistics.default.svc.cluster.local" 
+    paths: ["*"]
+    methods: ["*"]
+---
+apiVersion: "rbac.istio.io/v1alpha1"
+kind: ServiceRoleBinding
+metadata:
+  name: sfedu-admin-binding
+  namespace: default
+spec:
+  subjects:
+    - properties:
+        request.auth.claims["https://sfedu.ru/claims/global_group"]: "admin"
+  roleRef:
+    kind: ServiceRole
+    name: sfedu-admin
